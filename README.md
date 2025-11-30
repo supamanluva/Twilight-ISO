@@ -1,5 +1,9 @@
 # Twilight ISO Downloader
 
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub](https://img.shields.io/badge/github-supamanluva%2FTwilight--ISO-black)](https://github.com/supamanluva/Twilight-ISO)
+
 A Python tool to download all files from the Archive.org Twilight Warez CD Pack collection.
 
 ## Features
