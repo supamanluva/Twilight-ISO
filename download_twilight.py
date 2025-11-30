@@ -35,14 +35,27 @@ class TwilightDownloader:
         soup = BeautifulSoup(response.text, 'html.parser')
         files = []
         
-        # Find all links in the file listing
+        # Find all links in the file listing table
         for link in soup.find_all('a'):
             href = link.get('href')
-            if not href or href.startswith('?') or href == '../':
+            if not href:
+                continue
+            
+            # Skip navigation links, external links, and other non-file links
+            if (href.startswith('http') or 
+                href.startswith('?') or 
+                href.startswith('#') or
+                href.startswith('/') or
+                href == '../' or
+                href == '..'):
                 continue
                 
             # Skip if it's a "View Contents" link
             if 'View Contents' in link.get_text():
+                continue
+            
+            # Only include files with extensions (actual downloadable files)
+            if '.' not in href:
                 continue
                 
             filename = unquote(href)
