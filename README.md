@@ -1,118 +1,179 @@
-# Twilight ISO Downloader
+# Twilight ISO Collection
 
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub](https://img.shields.io/badge/github-supamanluva%2FTwilight--ISO-black)](https://github.com/supamanluva/Twilight-ISO)
 
-A Python tool to download all files from the Archive.org Twilight Warez CD Pack collection.
+Download, verify, search, and browse the complete [Archive.org Twilight Warez CD Pack](https://archive.org/details/twilight-warez-cd-pack-1-tm-89) collection (releases 1–89, 117 disc images).
 
 ## Features
 
-- 📥 Downloads all files from the collection
-- 📊 Progress bars for each download
-- ⏸️ Resume capability for interrupted downloads
-- 🎯 Filter by file type (ISO, BIN, JPG, etc.)
-- 🚫 Option to skip thumbnail images
-- 🔄 Automatic retry and error handling
+- 📥 **Download** all files from archive.org with resume support
+- ✅ **Verify** downloads against metadata (size + MD5 checksums)
+- 🔧 **Auto-fix** corrupt or incomplete downloads
+- 🌐 **Searchable website** — browse games & apps by release, search instantly
+- 🔍 **CLI search** — find which disc has a specific game
+- 💾 **USB prep** — format and load ISOs onto a USB drive for retro use
 
-## Installation
-
-1. Install the required dependencies:
+## Quick Start
 
 ```bash
+git clone https://github.com/supamanluva/Twilight-ISO.git
+cd Twilight-ISO
+python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
+./start.sh
 ```
 
-## Usage
+---
 
-### Basic Usage
+## Downloader
 
-Download everything:
+### Download
 
 ```bash
+# Interactive menu
+./start.sh
+
+# Download everything
 python download_twilight.py
-```
 
-### Advanced Options
-
-Download only ISO files:
-
-```bash
+# Download only ISOs
 python download_twilight.py --types iso
+
+# Download to a specific directory
+python download_twilight.py --types iso --output /mnt/external/twilight
 ```
 
-Download only ISO and BIN files:
+### Verify Downloads
+
+Compares files on disk against the archive.org `_files.xml` metadata (auto-downloaded on first run).
 
 ```bash
-python download_twilight.py --types iso bin
+# Quick size check (instant)
+python download_twilight.py --verify --types iso
+
+# Thorough check with MD5 checksums (reads every byte)
+python download_twilight.py --verify-md5 --types iso
 ```
 
-Download cover images (excluding thumbnails):
+### Fix Corrupt Downloads
+
+Detects bad files and re-downloads them automatically:
 
 ```bash
-python download_twilight.py --types jpg --skip-thumbs
+python download_twilight.py --fix --types iso
 ```
 
-Download to a specific directory:
+### All Downloader Options
+
+| Flag | Description |
+|------|-------------|
+| `--url URL` | Archive.org collection URL |
+| `--output, -o DIR` | Output directory (default: `./downloads`) |
+| `--types, -t ext [...]` | Filter by file type (e.g. `iso bin jpg`) |
+| `--skip-thumbs` | Skip thumbnail images |
+| `--verify` | Check downloads (size) |
+| `--verify-md5` | Check downloads (size + MD5) |
+| `--fix` | Re-download any corrupt/incomplete files |
+
+---
+
+## Searchable Website
+
+A static single-page website that indexes every game and app across all 117 discs. Features instant search, filter by games/apps, and shows which ISO each title is on.
+
+### Build the Website
 
 ```bash
-python download_twilight.py --output /path/to/downloads
+python3 tools/build_website.py
 ```
 
-### All Options
+This reads the extracted disc data from `downloads/list_txt_files/` and generates `docs/index.html`.
+
+### View the Website
+
+Open `docs/index.html` in any browser, or host it on GitHub Pages.
+
+**Live site:** *(enable GitHub Pages on the `docs/` folder in repo settings)*
+
+### Website Features
+
+- 🔎 Instant search across all games and apps
+- 🎮 Filter by Games or Apps
+- 📀 Browse by release number
+- ⌨️ Keyboard shortcuts: `/` to search, `Esc` to clear
+- 📱 Mobile responsive, dark theme
+
+---
+
+## CLI Game Search
+
+Search for games/apps from the terminal:
+
+```bash
+./tools/search_games.sh quake
+./tools/search_games.sh "need for speed"
+```
+
+Output shows which disc(s) contain the matching title.
+
+---
+
+## USB Prep Tool
+
+Format a USB drive and copy ISOs onto it for use on retro machines:
+
+```bash
+sudo ./tools/prep_win98_usb.sh
+```
+
+Features:
+- Auto-detects USB drives (excludes system disks)
+- NVMe-safe parent disk detection
+- Checks available capacity before copying
+- Shows progress with rsync
+- Cleanup on exit via trap
+
+---
+
+## Project Structure
 
 ```
---url              Archive.org collection URL (default: Twilight Warez CD Pack)
---output, -o       Output directory (default: ./downloads)
---types, -t        Only download specific file types (e.g., iso bin jpg)
---skip-thumbs      Skip thumbnail images (_thumb.jpg files)
+Twilight-ISO/
+├── download_twilight.py    # Main downloader (download/verify/fix)
+├── retry_failed.py         # Auto-detect and retry bad downloads
+├── start.sh                # Interactive menu
+├── download.sh             # Quick download wrapper
+├── retry.sh                # Quick retry wrapper
+├── QUICKSTART.sh           # Usage reference
+├── requirements.txt        # Python dependencies
+├── tools/
+│   ├── build_website.py    # Generate searchable website from disc data
+│   ├── search_games.sh     # CLI game search
+│   └── prep_win98_usb.sh   # USB drive prep for retro use
+├── docs/
+│   └── index.html          # Generated website (GitHub Pages ready)
+├── downloads/              # Downloaded ISOs and data (gitignored)
+│   ├── *.iso
+│   ├── list_txt_files/     # Extracted disc content listings
+│   └── twilight_games_list.txt
+└── .gitignore
 ```
-
-## File Types Available
-
-The collection includes:
-- **ISO files** - Disc image files (ranging from ~640MB to 7.9GB each)
-- **BIN files** - Binary disc images
-- **JPG files** - Cover art images
-- **XML files** - Metadata files
-- **Torrent files** - BitTorrent metadata
-
-## Resume Downloads
-
-If a download is interrupted, simply run the command again. The script will automatically resume from where it left off.
 
 ## Storage Requirements
 
-⚠️ **Warning**: The complete collection is very large (hundreds of GB). Make sure you have sufficient disk space before downloading everything.
-
-To check approximate sizes:
-- Small ISOs (001-047): ~600-800MB each
-- Large ISOs (048-089): ~4-8GB each
-- Cover images: ~100KB-2MB each
-- Total collection: ~500GB+
-
-## Examples
-
-Download only the first 10 ISOs (001-010):
-```bash
-python download_twilight.py --types iso
-# Then manually ctrl+c after 10 files
-```
-
-Get all covers but no thumbnails:
-```bash
-python download_twilight.py --types jpg --skip-thumbs
-```
-
-Download everything to an external drive:
-```bash
-python download_twilight.py --output /mnt/external/twilight-collection
-```
+| Releases | Size each | Notes |
+|----------|-----------|-------|
+| 001–047 | 640–700 MB | CD-sized |
+| 048–079 | 4–4.6 GB | DVD-sized |
+| 080–089 | 7.8–8.4 GB | Dual-layer |
+| **Total** | **~500+ GB** | |
 
 ## License
 
-This tool is for personal use. All content belongs to Archive.org and the original uploaders.
+MIT — see [LICENSE](LICENSE).
 
 ## Source
 
-Collection URL: https://archive.org/download/twilight-warez-cd-pack-1-tm-89/
+Collection: <https://archive.org/details/twilight-warez-cd-pack-1-tm-89>

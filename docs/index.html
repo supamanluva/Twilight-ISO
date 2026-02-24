@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Twilight Warez CD Collection – Game & Software Index</title>
+<meta name="description" content="Searchable index of all games and software across 38 Twilight Warez CD releases (1996-2000).">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💿</text></svg>">
+<style>
+:root {
+  --bg: #0a0a12;
+  --bg2: #12121e;
+  --bg3: #1a1a2e;
+  --accent: #6c63ff;
+  --accent2: #ff6584;
+  --text: #e0e0e8;
+  --text2: #8888a0;
+  --border: #2a2a40;
+  --game: #4ade80;
+  --app: #60a5fa;
+  --highlight: #fbbf24;
+  --radius: 8px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 2rem 1rem 1.5rem;
+  text-align: center;
+}
+.header h1 {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.25rem;
+}
+.header .subtitle {
+  color: var(--text2);
+  font-size: 0.95rem;
+}
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+.stat {
+  text-align: center;
+}
+.stat-num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Search */
+.search-container {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+}
+.search-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.search-box {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+.search-box input {
+  width: 100%;
+  padding: 0.65rem 1rem 0.65rem 2.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg2);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-box input:focus {
+  border-color: var(--accent);
+}
+.search-box input::placeholder { color: var(--text2); }
+.search-box .icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text2);
+  font-size: 1rem;
+  pointer-events: none;
+}
+.filters {
+  display: flex;
+  gap: 0.35rem;
+}
+.filter-btn {
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg2);
+  color: var(--text2);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.filter-btn:hover { border-color: var(--accent); color: var(--text); }
+.filter-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.result-count {
+  font-size: 0.8rem;
+  color: var(--text2);
+  white-space: nowrap;
+}
+
+/* Content */
+.content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Release cards */
+.release-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.release-card:hover {
+  border-color: var(--accent);
+}
+.release-card.hidden {
+  display: none;
+}
+.release-header {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  user-select: none;
+}
+.release-header:hover {
+  background: var(--bg3);
+}
+.release-num {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 2.5rem;
+}
+.release-title {
+  flex: 1;
+}
+.release-title .name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+.release-title .disc-info {
+  font-size: 0.75rem;
+  color: var(--text2);
+}
+.release-badges {
+  display: flex;
+  gap: 0.35rem;
+}
+.badge {
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.badge-game { background: rgba(74,222,128,0.15); color: var(--game); }
+.badge-app { background: rgba(96,165,250,0.15); color: var(--app); }
+.chevron {
+  color: var(--text2);
+  transition: transform 0.2s;
+  font-size: 0.8rem;
+}
+.release-card.open .chevron {
+  transform: rotate(90deg);
+}
+.release-body {
+  display: none;
+  padding: 0 1rem 1rem;
+}
+.release-card.open .release-body {
+  display: block;
+}
+.section-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  margin: 0.75rem 0 0.35rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-label.games { color: var(--game); }
+.section-label.apps { color: var(--app); }
+.item-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.2rem 1rem;
+}
+.item {
+  padding: 0.15rem 0;
+  font-size: 0.88rem;
+}
+.item .type-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 0.35rem;
+  vertical-align: middle;
+}
+.type-dot.game { background: var(--game); }
+.type-dot.app { background: var(--app); }
+
+/* Highlight search matches */
+mark {
+  background: var(--highlight);
+  color: #000;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* No results */
+.no-results {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text2);
+}
+.no-results .emoji { font-size: 3rem; margin-bottom: 0.5rem; }
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text2);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+
+/* Scroll to top */
+.scroll-top {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  z-index: 50;
+}
+.scroll-top.visible { display: flex; }
+
+@media (max-width: 600px) {
+  .item-list {
+    grid-template-columns: 1fr;
+  }
+  .stats { gap: 1rem; }
+  .search-inner { flex-direction: column; }
+  .filters { width: 100%; justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>💿 Twilight Warez CD Collection</h1>
+  <div class="subtitle">Searchable index of games & software across all releases (1996–2000)</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num">38</div><div class="stat-label">Releases</div></div>
+    <div class="stat"><div class="stat-num">819</div><div class="stat-label">Games</div></div>
+    <div class="stat"><div class="stat-num">688</div><div class="stat-label">Apps</div></div>
+    <div class="stat"><div class="stat-num">1507</div><div class="stat-label">Total Items</div></div>
+  </div>
+</div>
+
+<div class="search-container">
+  <div class="search-inner">
+    <div class="search-box">
+      <span class="icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search games, apps, or release number..." autofocus>
+    </div>
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="games">🎮 Games</button>
+      <button class="filter-btn" data-filter="apps">💾 Apps</button>
+    </div>
+    <div class="result-count" id="resultCount"></div>
+  </div>
+</div>
+
+<div class="content" id="content"></div>
+
+<button class="scroll-top" id="scrollTop" title="Back to top">↑</button>
+
+<div class="footer">
+  <p>Data sourced from Twilight CD disc menus (LIST.TXT) and <a href="https://twilight-cd.com/releases/">twilight-cd.com</a></p>
+  <p>Archive: <a href="https://archive.org/download/twilight-warez-cd-pack-1-tm-89/">archive.org/download/twilight-warez-cd-pack-1-tm-89</a></p>
+</div>
+
+<script>
+const RELEASES = [{"release": 1, "discs": [{"name": "Twilight001", "letter": ""}], "games": ["Actua Soccer", "Advanced Civilization", "CivNet", "Comix Zone", "Crusader - No Remorse", "Descent - Levels of the World", "Druids - Deamons of the mind", "EF 2000", "Extreme Pinball", "Fatal Racing", "Fifa Soccer 96", "Great Naval Battles IV", "Hexen", "Indy Car 2", "Radix - Beyond the Void", "Rayman", "Screamer", "Table Sports", "TekWar", "Terminator Future Shock", "The DIG", "Turrican 2 - The Final Fight", "WarCraft 2 - Tides of Darkness", "WipeOut", "Zone Raiders"], "apps": ["Abode Acrobat", "Adobe Acrobat Reader 211", "AfterDark", "InterApp", "LightWave 4.0", "MidiSoft Studio V4.0", "NetScape Navigator 2.0ß5", "NetScape Navigator 2.0ß5", "PC Anywhere 95", "QEMM 8.0", "Reflection 4a V5.0", "S-Designer Pro", "Web Author", "Web Scan", "Web Talk", "Win Fax 95"]}, {"release": 3, "discs": [{"name": "Twilight003", "letter": ""}], "games": ["Advanced Tactical Fighters", "Assault Rigs", "Big Red Racing", "Cronicles Of The Sword", "Cylindrix", "Earthsiege II", "Evolution: Lost In Time", "Gearheads", "Heretic: Serpent Riders", "Hexen: Dark Citadel", "Judge Dredd", "Revolution X", "Rise II: Resurrection", "Space Bucks", "S.T.O.R.M.", "Silent Hunter", "Super Stardust 96", "Super Star Wars", "Track Attack", "UEFA Champions League", "Virtual Chess", "Virtual Snooker", "Worms: Reinforcements"], "apps": ["Adobe Premiere V4.2", "Acrobat Distiller V2.1", "BootShield V1.01", "Borland C++ 5.0", "CorelXARA", "DSurvey", "Doc-To-Help", "ExpressFind", "ExpressUninstall", "Finale 3.5.1", "Maximizer V3.0is", "mIRC V4.0", "SoftDesk For Windows 1.0", "TapeDisk 6.5.4", "Web Media Publisher 2.7", "Worlds Chat V0.9a"]}, {"release": 4, "discs": [{"name": "Twilight004", "letter": ""}], "games": ["Air Warrior II", "Battle Arena Toshinden", "Battle Isle 2200: Shadow Of The Emperor", "Chaos Overlords: Strategic Gang Warfare", "Conquest o/t New World", "Duke Nukem 3D (Full CD Version)", "Earthworm Jim for DOS", "Earthworm Jim II", "Lemmings Paintball", "Majestic Part I: Alien Encounter", "Micro Machines II Turbo Tournament", "Normality", "Offensive", "Operation: Carnage", "Piranha", "Player Of The Year", "Return Fire", "Sensible World Of Soccer Euro 96 Edition", "Shell Shock", "Speed Haste", "Strife", "The Settlers II: Veni, Vidi, Vici", "Total Knockout Championship Female Boxing", "Total Mayhem", "Tyrian V2.0", "Virtual Soccer '96", "Warcraft II: Beyond The Dark Portal", "WitchHaven II", "Wizardry GOLD", "World Rally Fever"], "apps": ["3D Studio MAX", "4DOS, 4OS2 and 4NT 2.52", "Alibaba Web Server 2.0", "Cubase 3.0", "GraphPad Prism 2.01", "HotDog", "InContext Spider 1.1", "Java for Borland C++ 5.0", "Lotus Word Pro 96 Edition", "MacOpener 2.0", "MathCad Plus 6.0 Professional", "Norton Antivirus V2.0", "Quarterdeck SpeedyROM", "RealAudio 2.0", "Setup Factory 3.10", "Symantec Café Java", "VTune 2.0", "Watcom C/C++ 10.6 Small DOS-Rip", "Corel WordPerfect Office Suite"]}, {"release": 5, "discs": [{"name": "Twilight005", "letter": ""}], "games": ["AfterLife (MS-DOS/Windows95)", "Alien Incident", "BakuBaku Animal", "Close Combat", "Crusader: No Regret", "Cyber Dillo", "Deadline", "Deadlock", "Formula 1 Grand Prix 2", "Gender Wars", "Legends", "Pray For Death", "Quake (Full Version)", "Speed Rage", "Starfighter 3000", "Striker '96", "Time Commando", "Tracer", "Virtua Fighter Remix", "Williams Arcade Classics"], "apps": ["Cakewalk 5.0", "McAfee Commuter 1.0", "SciTech Display Doctor 5.2", "Dr Solomon's Anti-Virus Toolkit", "Easy CD Pro 1.2.416", "Internet FastFind", "Microsoft FrontPage", "Netscape Navigator 3.0", "Norton Tools For NT 3.51", "Paint Shop 4 Pro", "pcANYWHERE 7.5 32-Bit", "Registry Search & Replace 2.00", "Windows NT 4.0 Workstation"]}, {"release": 6, "discs": [{"name": "Twilight006", "letter": ""}], "games": ["Absolute Pinball", "Bedlam", "Bubble Bobble Combo", "Bug!", "Daggerfall (Full CD)", "EarthQuake (lots of Quake-addons)", "F-22 Lightning II", "Gene Wars (Final/Full-CD)", "Metal Rage", "Mechwarrior II: Mercenaries", "Monster Truck Madness", "Network Q RAC Rally Championship", "NHL 97", "Shattered Steel", "Star Control 3", "XenoPhage V1.1"], "apps": ["3D Studio MAX SDK (Software Development Kit)", "3D Studio MAX Upgrade to V1.10", "Adaptec EZ-SCSI 4.01", "Asymetrix WebPublisher", "Easy CD Pro 95 2.0", "Express Resource Monitor", "Game Guru", "MagnaRAM 97", "McAfee WebScan", "Norton Utilities for Windows95 V2.0", "Paint Shop 4 Pro Update", "Remote Desktop V2.0.2", "Dr Solomon's Anti-Virus Toolkit V7.63", "System Commander V3.00"]}, {"release": 7, "discs": [{"name": "Twilight007", "letter": ""}], "games": ["Amok", "Archimedean Dynasty", "Broken Sword", "Maui Mallard in Cold Shadow", "Death Rally (Registered Version)", "Fable", "Hind", "Hunter Hunted", "Pinball Construction Kit", "Road Rash", "Sim Golf", "Space Jam", "Syndicate Wars", "Toy Story", "Ultimate Soccer Manager 2", "Virtua Squad (Virtua Cop)"], "apps": ["1-4-All", "Deskbar", "Eudora Pro 3.0", "Executor 2.0", "Internet Sidekick 97", "McAfee QuickBackup", "McAfee PCCrypto 1.01 (International Version)", "Quarterdeck CleanSweep 3.0", "Quarterdeck Partition-It", "Quicken 6 Deluxe", "RayStudio 2.0 for 3D Studio MAX", "Site FX", "SoftIce for NT V1.05", "Dr Solomon's AntiVirus Toolkit 7.65 (MS-DOS/Win95)", "Symantec Healthy PC", "ViruSafe95 October", "Visual Java 1.0 (Final)", "Windows95 OSR2 (Final)", "WinPlay", "WinZip 6.2"]}, {"release": 8, "discs": [{"name": "Twilight008", "letter": ""}], "games": ["Creatures", "Destruction Derby 2", "Discworld 2", "Leisure Suit Larry 7", "M.A.X.", "NASCAR Racing 2", "Quake: Dark Hour", "Command And Conquer: Red Alert", "Scorcher", "Screamer II", "Settlers II Mission CD", "Sensible World Of Soccer '96/'97", "SkyNet", "Tomb Raider", "Tunnel B1"], "apps": ["Adobe Photoshop 4", "Diskeeper 2.0 for Windows NT4 Workstation", "F-Prot 2.25", "FrontPage 97", "Kali95 V1.0", "Microsoft Office97 Professional", "Norton PC Handyman", "Norton Utilities for Windows NT 4.0", "Real Audio Player Plus 3.0", "Dr Solomon's AntiVirus Toolkit V7.66 (Win95)", "Symantec Act! 3.0", "Teleport Pro V1.20", "Web-It!"]}, {"release": 9, "discs": [{"name": "Twilight009", "letter": ""}], "games": ["A.D. Cop", "Alien Rampage", "Chain Reaction", "City Of The Lost Children", "Crazy Drake", "Diablo (CD-playable)", "Die Hard Trilogy", "Hopy-ONE", "Into The Void", "Masters Of Orion II", "Moto Extreme", "Muzzle Velocity", "Robotron X", "Sega Rally", "Slam Tilt", "Street Racer", "Super Putt", "Tempest 2000", "Virtual Pool for Win95"], "apps": ["Bandwidth Buster", "HotDog 3.0.17", "InContext FlashSite", "Labels Unlimited V2", "Microsoft Imagecomposer", "Norton Commander for Win", "OilChange 1.2", "Paint Shop Pro 4.12", "Partition Magic 3.02", "SciTech Display Doctor 5.3", "Dr Solomon's AntiVirus Toolkit V7.67 (MS-DOS)", "Starfish Internet Utilities", "TapeDisk V6.5.4", "Visual Café Pro", "WS_FTP Pro V4.12"]}, {"release": 13, "discs": [{"name": "Twilight013", "letter": ""}], "games": ["Adventures of Lomax", "Axelerator", "Carmageddon", "Dungeon Keeper", "Ecstatica II", "Formula Karts", "FTA 2: Halls of the Dead", "Katharsis", "Moto Racer extra tracks", "Pandemonium", "Pro Pinball: Timeshock", "Search & Rescue", "Super Bubsy", "X-Men: Children of the Atom", "Zeitgeist"], "apps": ["Adobe Dimensions 3.0", "Adobe PageMill 2.0 r18", "Broderbund 3D Home Architect", "Cakewalk Pro Audio 6.0", "Cool Edit 96", "F-Prot Antivirus 2.27 W95/DOS", "Netscape Communicator 4.01", "S.A.W. Plus32 1.4", "Samplitude Studio 4.03", "Win on CD ToGo! 4.0.120", "Wordperfect 8.0", "Xerox Textbridge Pro 1.03", "Xing Mpeg Encoder 2.0"]}, {"release": 15, "discs": [{"name": "Twilight15b", "letter": "b"}], "games": ["Achtung Spitfire!", "Atomic Bomberman", "Captain Claw", "D.O.G", "Dark Colony", "Dogday", "F16 Fighting Falcon", "Hardcore 4x4", "Jazz Jackrabbit Final Episodes", "Little Big Adventure 2", "Lose Your Marbles", "MS Puzzle Collection", "Machine Hunter", "Mass Destruction", "Meat Puppet", "No Respect", "Outpost 2", "Panic Soldier", "QAD", "Speed Demons", "Terroid", "Vanguard Ace", "Warlords III", "X-COM 3 Apocalypse", "XCar", "DirectX 5"], "apps": ["4DOS V6.00", "Adaptec Easy CD Pro 2.11", "Adobe Streamline 4.0", "COMponents 3.0", "CoolCards Pro v1.5", "Easy-CD Creator Deluxe 3.0", "Forte Agent 32bit 1.5", "HomeStrip v1.1", "Jammer Pro 3.0", "Matlab 5", "PC Anywhere 32 8.0", "Print Shop Premier Edition 5.0", "ReBirth RB-338", "RealAudio Plus v4.0", "SciTech Display Doctor v6.0 b1", "Symantec Visual Page", "TalkKey NL", "ThunderBYTE Antivirus Pro 8.02", "Visual Day Planner 6.0", "WaveStation v2.70", "WebRazor v1.0 For Photoshop", "Wise Install Enterprise Ed. V5"]}, {"release": 16, "discs": [{"name": "Twilight16a", "letter": "a"}, {"name": "Twilight16b", "letter": "b"}], "games": ["7th Legion", "Beasts and Bumpkins", "Blood Omen: Legacy of Kain", "Carmageddon Splat Pack", "Constructor", "Dark Reign", "Garfield: Caught In The Act", "Hercules", "Hexen 2", "Ignition", "Imperialism", "NHL Open Ice 2 on 2", "Outlaws 2.0 Extra Missions", "Perfect Assassin", "Rayman Designer", "Resident Evil", "Shadow Warrior", "Shadows of the Empire", "Speadboat Attack", "Star Fleet Academy", "Swing", "Total Annihilation", "Virtua Fighter II", "War Inc.", "WarHeads", "DirectX 5 (dutch & english)"], "apps": ["Adobe Acrobat 3.01", "Adobe Illustrator 7", "Adobe PageMaker 6.5 NL", "Borland JBuilder Pro", "Broderbund Family Tree Maker 4", "Crystal 3D Impact 1.02", "Cubase Score VST 3.5", "Easy MP3 v2.1.7.5", "Elastic Reality 3", "Gear 4.2", "Gear Audio", "Gear Replicator 1.2", "IPhone 5.0 144", "MIRC 5.11", "MS Internet Explorer 4.0 full", "SciTech Display Doctor 6.0", "SoundDiver 2.0.1", "Thumbs Plus 32-bit 3.0g1", "WinZip 6.3"]}, {"release": 17, "discs": [{"name": "Twilight17a", "letter": "a"}, {"name": "Twilight17b", "letter": "b"}], "games": ["Age of Empires", "Andretti Racing '98", "Battle Arena Toshinden 2", "Broken Sword 2", "Chasm: The Rift", "Excalibur 2555 AD", "Holiday Island", "Incubation - Battle Isle Phase 4", "Int. Rally Championship", "Jedi Knight", "KKND Extreme", "Need for Speed 2 SE", "Oddworld: Abe's Oddysee", "Panzer General 2", "Pax Imperia 2: Eminent Domain", "Postal", "Red Alert:  Aftermath", "Sid Meier's Gettysburg", "Sky Target", "Sonic: Flickies' Island", "Streets of Sim City", "Take No Prisoners", "Tone Rebellion", "Total Annihilation Addon", "Turok: Dinosaur Hunter", "Uprising", "Zero Divide", "DirectX 5 (dutch & english)"], "apps": ["Audio Architect 3.0", "CuteFTP 2.0", "Dr. Solomon Antivirus 7.75 DOS", "Dr. Solomon Antivirus 7.75 Win95", "Drag and File Gold 4.12", "Drive Image Enterprise Edition", "EasyCD Audio", "Microsoft Frontpage 98", "Microsoft Picture It 2.0", "Nuts & Bolts 1.03", "OmniPage Pro 8", "PC Doctor 2", "Rational Rose/C++ 4.0.5", "Ray Dream 3D 5.0.1", "Saw Plus 32 2.1", "SoftIce 3.2", "Ulead Cool 3D", "Visual Cafe Prof. Edition 2", "WinFAX Pro 8", "Word Point", "Zip It 4.0"]}, {"release": 18, "discs": [{"name": "Twilight18a", "letter": "a"}, {"name": "Twilight18b", "letter": "b"}], "games": ["Absolute Bedlam", "Arcades Greatest Hits 2", "CART Precision Racing", "Frogger", "G-Police", "Grand Theft Auto", "Jet Moto", "Kick Off 98", "Manx TT Superbike", "Men in Black", "Montezuma's Return", "Mortal Kombat Trilogy", "Myth, The Fallen Lords", "Netstorm: Islands at War", "Puma World Football '98", "Scud: Industrial Evolution", "Smart Games 2", "Steel Panthers III", "Sub Culture", "Test Drive 4", "The Curse of Monkey Island", "Tomb Raider 2", "Twisted Metal 2", "Virtua Cop 2", "Virtual Pool 2"], "apps": ["3D Studio MAX 2", "3D Studio MAX 2 & Script SDK", "CheckIt 5", "Claris FileMaker Pro 4", "Claris Works Office 5", "Cleansweep Deluxe", "Crayola Art Studio 2", "MidPoint GateWay 2.01", "Norton CrashGuard Deluxe 3", "Norton Safe on the Web", "Norton Uninstall Deluxe", "Phototools 2 for Photoshop", "Rebirth 1.5", "Ulead F/X for Gif Animator", "Ulead Gif Animator 2", "Ulead Smart Saver 3.0", "Windows 98 Beta 3 (build 1629)", "Xara Webster 2", "XingMPEG Encoder 2.1"]}, {"release": 19, "discs": [{"name": "Twilight19a", "letter": "a"}, {"name": "Twilight19b", "letter": "b"}], "games": ["Battlespire", "Carmageddon Splat Pack", "Dungeon Keeper: Deeper Dungeons", "F1 Manager Pro", "F22 Air Dominance Fighter", "Fifa 98", "Flight Unlimited 2", "Front Page Sports: Ski Racing", "Go Man", "I-War", "Mephisto Master Chess", "NBA Live 98", "Pandemonium 2", "Quake 2", "Screamer Rally", "Seven Kingdoms", "Shipwreckers", "Street Fighter Zero", "TOCA Touring Car Championship", "Test Drive 4 3dfx", "Trucks", "Worms 2"], "apps": ["Automate Pro 3.8", "Dart Pro 1.2", "Dr. Solomon Antivirus 7.75 DOS", "Dr. Solomon Antivirus 7.75 W95", "Extensis Portofolio 3.01", "HotDog Pro 4.5", "Hurricane 98", "InstallShield 5  Pro International Edition", "Little Mermaid Print Studio", "Logo Cycler 2.1", "MGI Video Wave", "Magix Music Maker 3", "Norton Utilities 3", "PGP for Personal Privacy 5.5.2", "Quark XPress 4", "Quarterdeck Select It", "TurboPower Delphi Suite", "Web Whacker 3.2", "WebGraphics Optimizer Express 2.05", "WinSpace 2"]}, {"release": 20, "discs": [{"name": "Twilight20a", "letter": "a"}, {"name": "Twilight20b", "letter": "b"}], "games": ["Alien Earth", "Balls of Steel", "BugRiders: The Race of Kings", "Bust a Move 2", "Croc: Legend of the Gobbos", "Dark Colony: The Council Wars", "Dark Rift", "DemonStar", "Double Agent", "Duckman", "F1 Racing Simulation", "Jedi Knight: Mysteries of the Sith", "Joint Strike Fighter", "Nightmare Creatures", "Redneck Rampage: Suckin Grits on Route 66", "Rising Lands", "Sega Touring Car Championship", "Shanghai Dynasty", "Star Trek Pinball", "Tenka", "Turok D3D", "Virtual Chess II", "Wing Commander Prophecy", "X-Wing vs TIE Fighter: Balance of Power", "DirectX 5 dutch & english"], "apps": ["Bryce 3D", "Caligari TrueSpace 3.1", "Calypso 2.4", "Claris HomePage 3", "DeskBrain 4", "Eudora Pro 4", "Extensis Mask Pro", "Gimme Space", "Hollywood FX 3.08", "Macromedia Dreamweaver", "Opera 3", "Organica", "Qoole 2.30", "Remotely Possible 4", "SCSI Mechanic 2", "Samplitude Studio 4.05 + Point CD Audio 2.2", "SmartDraw 3.2", "ThunderByte AV 8.04 Win3.x/Win95/NT", "Ulead Web Album 4.01", "Virtual Makeover", "Voice Direct Pro 3"]}, {"release": 21, "discs": [{"name": "Twilight21a", "letter": "a"}, {"name": "Twilight21b", "letter": "b"}], "games": ["Actua Ice Hockey", "Armor Command", "Armored Moon", "Arsenal: Taste The Power", "Astro 3D", "Battlezone", "Dink Smallwood", "Final Impact", "Genocide", "Heavy Gear", "I76 Nitro", "Last Bronx", "MTG: Duels of the Planewalkers", "MadSpace", "Mars Taxi", "Mecanoid 97", "Moonchild", "Netris Kombat Full Arsenal", "Semper FI", "Shadow Master", "Spirit Warrior", "Star Wars: Rebellion", "Super Apocalypse Warriors", "The Divide: Enemies Within", "Warbreeds", "Warhammer: Dark Omen"], "apps": ["C:\\More! 1.2", "Clean Sweep 4", "Death Match Maker II", "Delphi Mega Pack", "DemoShield 5.3", "Dr. Solomon AV 7.80 Win95", "Easy CD Creator Deluxe 3.01b", "Extensis Intellihance 3.02", "Flashbox", "Help Magician Pro 4", "Ipublish 2.02", "NovaStation SYG20 2.1", "NovaStation SYXG50 2.1", "Paper Air Force", "Powerdesk Utilities 98", "Quarterdeck Remove-IT 98", "RoboHTML", "Sound Forge 4.0e 185", "Text Bridge Pro 98", "Ulead Type.Plugin", "VB2D 2.1 Pro", "Visual SlickEdit 3.0a", "WinGate 2.1 Pro Win95", "WinGate 2.1 Pro WinNT", "XG Works"]}, {"release": 22, "discs": [{"name": "Twilight22a", "letter": "a"}, {"name": "Twilight22b", "letter": "b"}], "games": ["AI Wars: The Insect Mind", "Adrenix", "Burnout: Championship Drag Racing", "Dark Reign Rise of the Shadowhand", "Die By The Sword", "Fighting Force", "Formula 1 World Championship 97", "Great Battles of Caesar", "Hexen 2 Portal of Praevus", "Liberation Day", "M1 Tank Platoon 2", "Mastermind", "Mission Chameleon", "Monster Truck Madness 2", "Motor Mash", "PAX Corpus", "Space Empires III 1.13", "Spec Ops", "Starcraft", "Street Fighter Zero 2", "Swarm", "Tomb Raider Unfinshed Business", "Ultim@te Race Pro", "VR Powerboat Racing"], "apps": ["Adaptec EZ SCSI Deluxe 5", "Borland C++ Builder 3 Client/Server", "Conversß Web", "CoolCat 4.01", "Design Express 1.14", "Desktop Designer", "Illuminatus 4", "Live Picture Reality Studio", "Live Picture Object Modeler", "Live Picture PhotoVista", "Logic Audio 3", "MacroMedia Flash 2", "MacroMedia FreeHand 8", "MacroMedia Script Editor 1.1", "MyBusiness Cards 3", "Scitech Display Doctor 6.51", "Symantec Act! 4", "ThunderByte Antivirus 8.05 W95/NT/DOS", "Truster 2.11", "Ulead Photo Assistant", "Ultra Hal 6", "WS FTP Pro 5", "WaveLab 2", "WinRAR 2.03"]}, {"release": 23, "discs": [{"name": "Twilight23a", "letter": "a"}, {"name": "Twilight23b", "letter": "b"}], "games": ["Addiction Pinball", "Army Men", "Beast Wars: The Transformers", "Castrol Honda Superbike Champions", "CyberStorm 2: Corporate Wars", "Esoteria 3", "Forsaken", "Incoming", "Incubation: The Wilderness Missions", "Industry Giant", "Jazz Jackrabbit 2", "Judge Dredd Pinball", "Lucky Luke", "MAME & 450+ Arcade Classics", "MotorHead", "Outwars", "Panzer Commander", "Plane Crazy", "Redline Racer", "Redneck Rampage Rides Again", "Reloaded W95", "Star Fleet Academy: Chekov's Lost Missions", "Z.A.R", "DirectPlay 5.0a", "DirectX 5.2 (dutch & english)", "DirectX Media 5.2a"], "apps": ["Astound 5", "Atomic Clock 4", "AudioActive MP3 Production Studio", "Check 2000 PC", "Cool Edit Pro 1.1", "Dr. Solomon AV 7.83 W95", "Drive Image 2", "Extensis PhotoAnimator", "Fruity Loops 1.2.10", "HexMaker", "Maple V R5", "MetaCreations Painter 3D", "Multi Edit 8.0b", "Paint Shop Pro 5", "RubberDuck 2.01", "Safe & Sound", "Ulead ArtTexture.Plugin", "Ulead FantasyWarp.Plugin", "VivoActive PowerPlayer 2.1", "VivoActive VideoNow 3", "Wise Installation System 6"]}, {"release": 24, "discs": [{"name": "Twilight24a", "letter": "a"}, {"name": "Twilight24b", "letter": "b"}], "games": ["Alain Prost Grand Prix", "Astrorock 2000", "Commandos", "Descent FreeSpace", "Flesh Feast", "Game, Net & Match", "Gex 3D Enter the Gecko", "Micro Machines V3", "Play To Win Casino", "Sanitarium", "Sentinels of Ceth", "Team Apache", "Total Soccer", "Tribal Rage", "Unreal", "World Cup 98", "Xenocracy", "DirectPlay 5.0a", "DirectX 5.2 dutch", "DirectX 5.2 english", "DirectX Media 5.2a"], "apps": ["ACID", "Acoustic-X", "Adobe PhotoShop 5", "Adobe Premiere 5", "Art-O-Matic 1.4", "Coderush 3.01x", "D-lusion Drumstation", "DarkTree", "Fusion Filter", "Fusion Vocode", "Macromedia Director 6.5", "Macromedia Fireworks", "Microsoft Windows 98", "NS Reisplanner 1998", "Samplitude 2496 5.01", "Steinberg B.BoX", "ThunderByte Antivirus 8.06 DOS", "ThunderByte Antivirus 8.06 NT", "ThunderByte Antivirus 8.06 W95"]}, {"release": 25, "discs": [{"name": "Twilight25a", "letter": "a"}, {"name": "Twilight25b", "letter": "b"}], "games": ["Ancient Evil", "Clonk 4", "Death Trap Dungeon", "Dominion", "F22 Red Sea Operations", "Heart of Darkness", "Hexplore", "Hopkins F.B.I", "House of the Dead", "Insurrection: Starcraft Campaigns", "Krush Kill and Destroy 2: Krossfire", "Leisure Suit Larry Casino", "Mortal Kombat 4", "Nam", "Pinball Soccer '98", "Robo Rumble", "Rockman X4", "Stratosphere", "Vangers: One For The Road", "X-Com Interceptor", "DirectPlay 5.0a", "DirectX 5.2 dutch", "DirectX 5.2 english", "DirectX Media 5.2b"], "apps": ["3D Studio MAX 2.5", "Borland/Inprise Delphi 4 Client/Server", "CakeWalk Pro Audio 7", "Cakewalk Audio FX1", "Dr. Solomon AV 7.85 NT", "Dr. Solomon AV 7.85 Win9x", "Easy Icons 98 & Icon Easel 98", "Font Lib 98 2.0", "HotDog Pro Web Master Suite 5", "Kai's SuperGoo", "MIRC 5.4", "MacOpener 3", "Norton Your Eyes Only 4.1", "Nuts and Bolts 98", "Partition Magic Pro 3.05", "Plugin Manager 2", "TechSeeker 98 3.4", "The Brain 1.5", "Ulead MediaStudio Pro 5.02"]}, {"release": 26, "discs": [{"name": "Twilight26a", "letter": "a"}, {"name": "Twilight26b", "letter": "b"}], "games": ["Ares Rising", "Evil Knievel", "F16 The Afghanistan Campaign", "Fields of Fire", "First Assault: Juggernaut Corps", "Get Medieval", "M.A.X 2", "Montezuma's Return", "Rampage World Tour", "Revenge of the Arcade", "Rune War", "Seven Kingdoms: Ancient Adversaries", "Small Soldiers: Globotech Design Lab", "Swat 2", "TIE Fighter 95", "Ultra Violent Worlds", "Urban Assault", "WarGames", "Wreckin Crew", "DirectPlay 5.0a", "DirectX 5.2 dutch", "DirectX 5.2 english", "DirectX Media 5.2b"], "apps": ["Adobe ImageReady", "AweVBank 98", "BestCrypt NP 4.14", "Borland JBuilder 2 Client/Server", "Cinema 4D XL 5.1", "Club Hollywood Transitions", "Dr. Solomons AV 7.86 Win9x", "DrumBeat 2", "Guardian Angel", "HomePage Print", "Lightwave 5.6", "Microsoft Windows 98 NL", "NetZip 6.3 Deluxe", "Phone Ticker 1.10.3", "QSound QCommander", "Scroll 3", "Visual Route 3.2c", "Xara WebStyle 1.1"]}, {"release": 27, "discs": [{"name": "Twilight27a", "letter": "a"}, {"name": "Twilight27b", "letter": "b"}], "games": ["Bass Masters Tournament Edition", "Chessmaster 6000", "Crazyoid 1.1", "Creatures 2", "Echelon", "Gubble 2", "iF/A18E Carrier Strike Fighter", "Johnny Herbert Grand Prix Championship 98", "Medieval", "Motocross Madness", "Peter Jacobsen's Golden Tee Golf", "Parkan Imperial Chronicles", "Rage of Mages", "Rainbow Six", "Redneck Deer Huntin'", "Sentinel Returns", "SpearHead", "Spellcross", "The Race to Galamax", "Titanic Challenge of Discovery", "Warlords III Darklords Rising", "DirectX 6 Win98", "DirectX 6 Win95 dutch", "DirectX 6 Win95 english"], "apps": ["AND Route 98 Europe", "Acoustic Mirror 1.1", "AnitViral Toolkit Pro 3.0 123", "Automate Pro 4.01", "CopyRite", "Derive for Windows 4.11", "Encore 4.2.1", "Generator 1.53", "Liquid FX 4.02", "Music Label 98", "PowerDVD 1.22", "Rebirth RB338 2.0", "Sound Forge 4.5", "Symantec TalkWorks Pro 2.0", "Ulead Cool 3D 2", "Ulead Photo Impact 4.2", "Visual Business Cards 3.1e"]}, {"release": 28, "discs": [{"name": "Twilight28a", "letter": "a"}, {"name": "Twilight28b", "letter": "b"}], "games": ["Bonkheads", "Dead Reckoning", "Dune 2000", "F-16 Multirole Fighter", "F22 Total Air War", "Front Page Sports Skiing 99", "H.E.D.Z", "Hardwar", "Hesperian Wars", "Hoyle Board Games 2", "Hoyle Card Games 2", "MiG-29 Fulcrum", "NFL GameDay 99", "NHL 99", "Need For Speed 3: Hot Pursuit", "People's general", "Quake 2: Ground Zero", "Return Fire 2", "Roland Garros 98", "Shogo Mobile Armor Division", "The 5th Element", "Wall Street Trader 98", "Wetrix", "DirectX 6 Win98", "DirectX 6 Win95 dutch", "DirectX 6 Win95 english"], "apps": ["AX-Cursors 4.5", "AX-Icons 4.5", "Adaptec Easy CD Creator 3.5", "Antiviral Toolkit Pro 3.0 124", "Extensis Mask Pro 2", "Extensis PhotoTools 3.0", "Harvard Graphics 98", "MusicMatch JukeBox 2.45", "Nendo", "PGP Personal Privacy 6.0", "Philips FreeSpeech 98", "Pristine Sounds 98", "Reality 1.5", "SideKick 99", "Surf Express Deluxe", "TopDown Flowcharter 5.5", "Voicecrypt 2.0", "Winboost 98 1.1", "Zoner Callisto 3.0"]}, {"release": 29, "discs": [{"name": "Twilight29a", "letter": "a"}, {"name": "Twilight29b", "letter": "b"}], "games": ["3D MazeMan", "Age of Empires: Rise of Rome", "Axis and Allies", "Barrage", "Buggy", "Caesar III", "Colin McRae Rally", "Descent Freespace: Silent Threat", "Enemy Infestation", "Golden Logres Pinball", "Grand Prix Legends", "Hard Truck: Road to Victory", "Hoyle Casino 99", "Knights & Merchants", "Loderunner 2", "Missing in Action", "Monaco Grand Prix Simulation 2", "Newman Haas Racing", "Or Die Trying", "Pinball Arcade", "Real Pool", "RiverWorld", "Smart Games 3", "Virus 2000", "DirectX 6 Win98", "DirectX 6 Win95 dutch", "DirectX 6 Win95 english", "DirectX Media 6"], "apps": ["3D Magic 1.1", "Adobe Illustrator 8", "Antiviral Toolkit Pro 3.0 981024", "CakeWalk Pro Audio 8", "Conversion Plus 4.5", "Finale 98", "Gravity 2.1", "Guarddog 2", "MathCad 8", "Netscape Communicator 4.5", "Poster 6", "Quarterdeck Crash Defender", "QuickTime 3.0.2 Pro", "SmartDraw 4 Pro Edition", "TTFPlus 3.4", "Ulead GIF Animator 3", "WinZip 7", "Xing AudioCatalyst", "XingMP3 Encoder 1.02"]}, {"release": 30, "discs": [{"name": "Twilight30a", "letter": "a"}, {"name": "Twilight30b", "letter": "b"}], "games": ["Asteroids", "Carmageddon 2", "Dethkarz", "Fifa 99", "Half-Life", "Incoming: Subversion", "Moto Racer 2", "Populous 3", "Powerslide", "Railroad Tycoon II", "Ruthless.com", "S.C.A.R.S", "Settlers 3", "Sin", "Sonic R", "Test Drive 5", "Tomb Raider III", "Viper Racing", "DirectX 6 Win98", "DirectX 6 Win95 dutch", "DirectX 6 Win95 english", "DirectX Media 6"], "apps": ["3D Mark 99 Pro", "Antiviral Toolkit Pro 3.0 981113", "AutoDesk AutoSketch 6", "Cakewalk Guitar Studio", "Deformer 2", "DeskEx", "Extensis Intellihance Pro 4", "Internet Neighborhood 2.3", "Multimedia Builder 3.1", "Nu Calc 2", "O'Reilly Utilities", "Observer 5.2", "OmniPage Professional 9", "Opera 3.5", "Rhinoceros", "SureSync 2.0d", "Ulead SmartSaver Pro", "Windows Help Designer Pro 2.2"]}, {"release": 31, "discs": [{"name": "Twilight31a", "letter": "a"}, {"name": "Twilight31b", "letter": "b"}], "games": ["A Bug's Life", "Anno 1602", "Blood II: The Chosen", "Civilization II Multiplayer Gold", "Dark Vengeance", "Future Cop: L.A.P.D", "Grand Touring", "Heretic II", "Magic & Mayhem", "Nascar 1999 Edition", "Outrage", "Rival Realms", "Savage Arena", "Skullcaps", "Star Wars Rogue Squadron 3D", "Thief The Dark Project", "Uprising 2: Lead & Destroy", "DirectX 6 Win98", "DirectX 6 Win95 dutch", "DirectX 6 Win95 english", "DirectX Media 6"], "apps": ["Antiviral Toolkit Pro 3.0 981207", "Art-Copy 5", "Band in a Box 8", "Cakewalk Score Writer", "Canvas 6 Professional", "Jet-Audio 4.02", "Kai's Power Tools 5", "MacOpener 4", "Macromedia Director 7", "Macromedia Dreamweaver 2", "RealPlayer Plus G2", "Revolve 100m", "Sandra Professional 98 11.4.20", "Sniffer Pro 2.1", "Steinberg Clean!", "The Bat 1.17", "Ulead ViZfx Web Pro"]}, {"release": 32, "discs": [{"name": "Twilight32a", "letter": "a"}, {"name": "Twilight32b", "letter": "b"}], "games": ["Battlecruiser 3000AD 2.0", "CyberStrike 2", "Elite Darts", "Extreme Tennis", "Gangsters", "Mad Trax", "Natural Fawn Killers", "OddWorld, Abe's Exodus", "Sid Meier's Alpha Centauri", "Sim City 3000", "Simon the Sorcerer's Pinball", "Snowmobile Racing", "Speed Busters", "Starcraft, Brood War", "Starsiege Tribes", "Thunder Brigade", "Timon & Pumbaa's Slingshooter", "Ultra Fighters", "DirectX 6", "DirectX Media 6"], "apps": ["Antiviral Toolkit Pro 3.0 981229", "Audio Catalyst 1.5", "BoundsChecker 6.01 C++ Builder Edition", "BoundsChecker 6.01 Delphi Edition", "Cybercop Scanner 2.5", "Desk Pack 98", "Eudora Pro 4.1", "Fast Track Scheduler 6.0", "IForce Studio 2.02", "May 8 Hi-Fi", "Nero Burning ROM 4.0.0.5", "Probe", "RealProducer Plus G2", "Sibelius", "Sky 3D 2.0", "Visual UML 1.03", "WinGate 3.0 NT", "WinGate 3.0 Win9x", "Windrop 3.3"]}, {"release": 33, "discs": [{"name": "Twilight33a", "letter": "a"}, {"name": "Twilight33b", "letter": "b"}], "games": ["Army Men II", "BFRIS Zero Degree Fighter Combat", "Battleground, Chickamauga", "Eliminator", "Extreme-G 2", "Go Professional II", "Gruntz", "Rainbow Six, Eagle Watch", "SPiNS", "Super Bikes", "Tellurian Defence", "The Creed", "The Operational Art of War Battle Pack 1", "Turok 2, Seeds of Evil", "UltraHLE + ROMs", "Worms Armageddon", "Xenic", "DirectX 6.1", "DirectX Media 6"], "apps": ["ACDSee32 2.4", "Adobe Framemaker 5.5.6", "BCad 3.4", "CD Copier Gamers Edition 2.0", "Cartoon Televison Program 1.1", "Evolution DanceStation 1.03", "Extensis Photographics", "GameSpy 2.08", "GetRight 3.3.3", "MGI VideoWave II", "Norton AntiVirus 5.01.01", "Norton Ghost 5.1c", "OmniPage Web", "Paper PhotoCube 1.1", "Scitech GLDirect", "SoftF/X Pro 4.1", "Waves Native Power Pack Volume 1 2.5", "Waves Native Power Pack Volume 2 2.5", "Wise InstallManager 7.01"]}, {"release": 34, "discs": [{"name": "Twilight34a", "letter": "a"}, {"name": "Twilight34b", "letter": "b"}], "games": ["Bowlda Dash", "Extreme Bullrider", "F16 Aggressor", "Heroes of Might and Magic III", "Imperialism II, Age of Exploration", "Lander", "Mephisto Genius 99", "Nascar Revolution", "Pool Shark", "Recoil", "Resident Evil 2", "Rollcage", "Sega Smash Pack", "Sin, Wages of Sin", "SouthPark", "Starsiege", "Ultimate Games Pack", "DirectX 6.1", "DirectX Media 6"], "apps": ["Adobe After Effects 4 Production", "Antiviral Toolkit Pro 3.0 129", "Borland C++ Builder 4 Professional", "BrainWasher", "Calypso 3", "Cubase VST24 3.650", "DSP-FX 5.510", "HotDog Professional 5.5", "Junk Drawer 2.1", "Macromedia Fireworks 2", "MetaCreations Headline Studio", "Norton Utilities 4", "PowerQuest Boot Magic 1.0", "PowerQuest DataKeeper 3", "ThumbsPlus 4", "Ulead Cool 360", "Virtuosa Gold 3.10"]}, {"release": 35, "discs": [{"name": "Twilight35a", "letter": "a"}, {"name": "Twilight35b", "letter": "b"}], "games": ["Civilization, Call To Power", "Commandos, Beyond the Call of Duty", "Drone", "Grand Theft Auto, London 1969", "Hell-Copter", "High Heat Baseball 2000", "HyperBall", "Jazz Jackrabbit 2, The Secret Files", "Redline", "RollerCoaster Tycoon", "Sports Car GT", "Tank Racer", "TOCA 2 Touring Cars", "UEFA Champions League", "V-Rally", "Warzone 2100", "X-Wing Alliance", "DirectX 6.1", "DirectX Media 6"], "apps": ["Ads Off 1.85", "Antiviral Toolkit Pro 3.0 129a", "AutoCAD 2000", "CU-SeeMe Pro 4.0", "Cache and Cookie Washer 2.4", "Fix-It Utilities 99", "InfoTree XT 1.3", "Satori WebFX 2000 3.01", "Saw Pro 1.6", "Shellac", "Show Magic 3D 1.33", "SuperToolz", "Ulead Animation.Applet", "Universev1.61", "WinRAR v2.50", "Xing MP3 Encoder 1.5", "Xpose IT 1.02"]}, {"release": 36, "discs": [{"name": "Twilight36a", "letter": "a"}, {"name": "Twilight36b", "letter": "b"}], "games": ["Actua Ice Hockey 2", "Battlezone, The Red Odyssey", "Blaze & Blade", "Boss Rally", "Bubble Bobble Hero 2", "Expendable", "Final Odyssey", "Guardian Of Darkness", "Machines", "Midtown Madness", "Official Formula 1 Racing", "Railroad Tycoon 2, The Second Century", "Sega Puzzle Pack", "Settlers 3 Mission CD", "The Operational Art of War 2", "Thrust, Twist'n Turn", "Wild Metal Country", "DirectX 6.1", "DirectX Media 6"], "apps": ["Antiviral Toolkit Pro 3.0.129 990507", "Audio Catalyst 2.0", "Bryce 4", "DSP-FX 6.003", "Drive Image Pro 3.0", "Lost & Found 1.01", "MP3 CD Maker", "Opera 3.60", "PC-Duo 4.11", "PartitionMagic 4.01", "PrintMusic!", "Scala iPlay Studio", "SkyGlass", "Total Xaos", "Ulead Cool 3D 2.5", "Virtual Sampler 1.5", "WebZip 2.75", "Xerox TextBridge Pro 9.01"]}, {"release": 37, "discs": [{"name": "Twilight37a", "letter": "a"}, {"name": "Twilight37b", "letter": "b"}], "games": ["Aliens Vs Predator", "Animaniacs, A Gigantic Adventure", "Corsairs", "Curse You! Red Baron", "Evil Core, Fallen Cities", "Hoyle Solitaire and Mahjong", "Jeff Gordon XS Racing", "Man of War II", "MechWarrior 3", "Nascar Road Racing", "Need For Speed, High Stakes", "Rage of Mages 2, Necromancer", "Saga, Rage of the Vikings", "Star Trek, Birth of the Federation", "Star Wars, Episode I Racer", "Star Wars, The Phantom Menace", "Tomb Raider 2, The Golden Mask", "DirectX 6.1", "DirectX Media 6"], "apps": ["3D RAD 2.3", "Adobe GoLive 4.0", "Black Hole Organizer 1.52", "Bleem!", "Cool Edit Pro 1.20", "DX Creator 1.4", "Deep Paint", "FileProbe", "I-Force Studio 3.0", "MetaCreations Canoma", "Multimedia Builder MP3 4.0", "Norton AntiVirus 5.02", "Paint Shop Pro 5.03", "Samplitude 24/96 5.20", "T-Racks 1.10", "Timbuktu Pro 32 2.0.650", "Triplus Winspace Pro 3.0", "VAZ Modular 2.0"]}, {"release": 38, "discs": [{"name": "Twilight38a", "letter": "a"}, {"name": "Twilight38b", "letter": "b"}], "games": ["America's Greatest Arcade Hits", "Atari Arcade Hits", "Attack of the Saucerman", "Castrol Honda Superbikes 2000", "Descent 3", "Dungeon keeper 2", "Fighting Steel", "Heavy Gear 2", "Hidden & Dangerous", "Hoyle Craps and Blackjack", "Kingpin, Life of Crime", "NEK 2.0", "Outcast", "PeaceMaker", "Rich Diamond", "Tarzan", "DirectX 6.1", "DirectX Media 6"], "apps": ["Antiviral Toolkit Pro 3.0.131", "AutoEye 1.0", "AutoPlay Menu Studio 2.04 Pro", "BioDrummer 1.1", "Borland JBuilder Pro 3", "Cheater's Lair 3.1", "CodeRush 4.02R", "Copernic 99 Plus 3.01", "Digital Orchestrator Pro 3.02.05", "Euro Calculator", "HyperCam 1.50", "Macromedia Flash 4.0", "Microangelo 98 4.77", "NetObjects Fusion 4.01", "PCAnywhere 9.0", "Quartz AudioMaster 2000 4.15", "TrueSpace 4.2", "Windows Commander 4"]}, {"release": 39, "discs": [{"name": "Twilight39a", "letter": "a"}, {"name": "Twilight39b", "letter": "b"}], "games": ["Arcade Pool 2", "Braveheart", "DarkStone", "Force 21", "Jagged Alliance 2", "MayDay", "Polaris Rebellion", "Psychic Force 2012", "Respect Inc.", "Roland Garros Tennis 99", "Rolling Marbles", "Roswell Pinball", "Shadowman", "Star Trek, Star Fleet Command", "Street Wars, Constructor Underworld", "XTom 3D", "DirectX 6.1", "DirectX Media 6"], "apps": ["AtGuard 3.2", "Kai's Power Tools Gel 1.0", "Mathematica 4.0", "Merlin VR", "Nero Burning ROM 4.0.3.5", "O'Reilly Utilities 1.2", "Photoshop 5.5", "ReSet2000 3.0", "Retro AS-1 1.22", "Sierra Web Studio Express", "Stick-e-NotePad 1.1", "The Electric Mind", "URLStarter", "Ulead Cool 3D Plugin Madness II", "Vegas Pro", "Voice FX", "Where Is It? 2.10", "WinACE 1.0"]}, {"release": 40, "discs": [{"name": "Twilight40a", "letter": "a"}, {"name": "Twilight40b", "letter": "b"}], "games": ["ACM 1918", "Command and Conquer, Tiberian Sun", "Clans", "Dionakra", "Drakan, Order of the Flame", "DropMania", "Frisbee Golf", "Gulf War, Operation Desert Hammer", "K.O. Ultra Realistic Boxing", "Lego Racers", "NBA Inside Drive 2000", "Rayman Collector", "Re-Volt", "Seven Kingdoms 2, The Frahtan Wars", "System Shock 2", "Tournament of Warriors", "Xtreme Sports Arcade Summer Edition", "DirectX 6.1", "DirectX Media 6"], "apps": ["Adobe InDesign", "Digital 1200SL 3.6", "Easy CD Creator Deluxe 4.0", "Forte Agent 1.6", "Kai's Power Tools Goo", "LView Pro 2.6", "Linkman Pro 5.01", "Norton CleanSweep 2000", "Power Publisher", "PowerDVD 2.0", "SimSynth 2.4", "Sound Diver 2.0.8", "Symantec ACT! 2000", "Tweaki for Power Users 2.4", "Virtual Drive 2000 5.0", "Wintask 2.0", "Xing Audio Catalyst 2.1"]}, {"release": 41, "discs": [{"name": "Twilight41a", "letter": "a"}, {"name": "Twilight41b", "letter": "b"}], "games": ["AMA Superbike", "Age of Empires II", "ChessMaster 7000", "Poker Night with David Sklanksy", "Demonstar 3.22", "Driver", "Descent: Freespace 2", "HomeWorld", "MozPong Deluxe 1.0", "NASCAR RACING 3", "Prince of Persia 3D", "Rainbow 6 : Rogue Spear", "Raptor 2.0", "Sinistar Unleashed", "Legacy of Kain: Soul Reaver"], "apps": ["3D Studio VIZ R3", "Paint Shop Pro 6 with Animation Shop 2", "Dreamweaver 2.04", "Storefront 2000 E-Commerce", "Life Forms Studio 3.5", "Spazz3D 1.0", "Surveyor Manager 1.1.1", "Cartoon Television Program 1.2", "Show Maker 2.4", "Band-in-a-Box for Windows 1.8", "Mp3 CD Maker 1.17", "MP3 Strip_It! Digital 5.2", "LSX-MPEG Encoder 3.0", "n-Track Studio 2.0", "Video Capturix 2000 3.10", "Dynazip AX 4.0"]}, {"release": 42, "discs": [{"name": "Twilight42a", "letter": "a"}, {"name": "Twilight42b", "letter": "b"}], "games": ["3D Bubble Burst", "3D Frog Frenzy", "3D Pinball Express", "Abomination: The Nemesis Project", "Armored Fist 3", "B-Hunter", "Carnivores 2", "Delta Force 2", "Demolition Racer", "FiFA 2000", "Disney's Frenzy-Scar", "Grand Theft Auto 2", "Metal Knight", "Minitris 2.5", "Pharaoh", "Pong", "Raising Dead  1.2", "Revenant", "Sid Meyers Alpha Centauri : Alien Crossfire", "Space Invaders", "SolSuite 2000", "The Next Tetris"], "apps": ["Adobe After Effects 4.1", "Adventure Maker 2.0", "Business Card Wizard Professional 2.0", "BPM Studio 1.5", "Copernic 2000 Pro 4.0", "DiskClean Deluxe 2.0", "DJ2000 MP3 Manager & Player 1.0", "Eudora Pro 4.2", "FaxMail Network 9.1", "Infodex Pro 4.03", "Internet Audio Mix 1.3", "Kais SuperGOO 1.5", "Macromedia Authorware 5.1", "Microsoft Home Publishing Suite 2000", "MidPoint Gateway 3.24", "Nero Burning ROM 4.0", "Norton Speed Disk 5.0 for Windows NT", "RealJukebox Plus 1.0", "Sophos Anti-Virus 3.26"]}, {"release": 46, "discs": [{"name": "Twilight46a", "letter": "a"}], "games": ["Archipelagos 2000", "Beetle Crazy Cup", "Boa Bite 3D", "Football World Manager 2000", "Grand Prix World", "Heart Breakers", "Myrtle Beach Tour", "Nox", "PBA Bowling 2", "Pokemon Trading Card Game", "Rally Championship 2000", "Red Thunder", "Seeds Of Evil II", "South Park Rally", "DirectX Media 6.0", "DirectX 7.0"], "apps": ["3M Post-It Notes Office 2.0", "ACT! 2000", "Arclab MailList Controller 1.0", "CoSession Remote 2000 9.0", "Cult 3D Designer Pack 4.0", "B&M Mpeg Carver 1.2", "CyberLink VideoLive Mail 3.1", "Grins for RealSystem G2 Pro 1.5", "Jiao MPEGPlayer 3.3", "Microsoft Windows 2000 Pro", "MP3 Wolf 1.05", "MP3 Decoder 1.43", "NTMail 5.2 for Win9x", "Pokemon TCG Deckbuilder", "Video 1-2-3 Lite 2.0"]}];
+
+let currentFilter = 'all';
+let searchTerm = '';
+let openCards = new Set();
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlightMatch(text, term) {
+  if (!term) return escapeHtml(text);
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp('(' + escaped + ')', 'gi');
+  return escapeHtml(text).replace(regex, '<mark>$1</mark>');
+}
+
+function getDiscLabel(rel) {
+  const discs = rel.discs || [];
+  const letters = discs.map(d => d.letter).filter(Boolean);
+  if (letters.length > 0) {
+    return letters.map(l => 'Disc ' + l.toUpperCase()).join(' + ');
+  }
+  return 'Single disc';
+}
+
+function itemMatches(item, term) {
+  return item.toLowerCase().includes(term.toLowerCase());
+}
+
+function releaseMatches(rel, term, filter) {
+  if (!term && filter === 'all') return true;
+  const t = term.toLowerCase();
+
+  // Check release number
+  if (t && (String(rel.release).includes(t) || ('twilight ' + rel.release).includes(t) || ('twilight' + rel.release).includes(t))) {
+    if (filter === 'all') return true;
+    if (filter === 'games' && rel.games.length > 0) return true;
+    if (filter === 'apps' && rel.apps.length > 0) return true;
+  }
+
+  const showGames = filter === 'all' || filter === 'games';
+  const showApps = filter === 'all' || filter === 'apps';
+
+  if (showGames && rel.games.some(g => !t || itemMatches(g, t))) return true;
+  if (showApps && rel.apps.some(a => !t || itemMatches(a, t))) return true;
+
+  return false;
+}
+
+function getMatchingItems(items, term) {
+  if (!term) return items;
+  return items.filter(i => itemMatches(i, term));
+}
+
+function render() {
+  const container = document.getElementById('content');
+  let html = '';
+  let visibleCount = 0;
+  let matchCount = 0;
+
+  for (const rel of RELEASES) {
+    const matches = releaseMatches(rel, searchTerm, currentFilter);
+    if (!matches) continue;
+    visibleCount++;
+
+    const showGames = currentFilter === 'all' || currentFilter === 'games';
+    const showApps = currentFilter === 'all' || currentFilter === 'apps';
+
+    const matchedGames = showGames ? getMatchingItems(rel.games, searchTerm) : [];
+    const matchedApps = showApps ? getMatchingItems(rel.apps, searchTerm) : [];
+
+    // If searching, show all if release number matches, otherwise show only matching items
+    const dispGames = searchTerm && !String(rel.release).includes(searchTerm.toLowerCase()) ? matchedGames : (showGames ? rel.games : []);
+    const dispApps = searchTerm && !String(rel.release).includes(searchTerm.toLowerCase()) ? matchedApps : (showApps ? rel.apps : []);
+
+    matchCount += matchedGames.length + matchedApps.length;
+
+    const isOpen = openCards.has(rel.release) || !!searchTerm;
+
+    html += '<div class="release-card' + (isOpen ? ' open' : '') + '" data-release="' + rel.release + '">';
+    html += '<div class="release-header" onclick="toggleCard(' + rel.release + ')">';
+    html += '<div class="release-num">#' + rel.release + '</div>';
+    html += '<div class="release-title">';
+    html += '<div class="name">Twilight ' + rel.release + '</div>';
+    html += '<div class="disc-info">' + getDiscLabel(rel) + '</div>';
+    html += '</div>';
+    html += '<div class="release-badges">';
+    if (rel.games.length) html += '<span class="badge badge-game">🎮 ' + rel.games.length + '</span>';
+    if (rel.apps.length) html += '<span class="badge badge-app">💾 ' + rel.apps.length + '</span>';
+    html += '</div>';
+    html += '<span class="chevron">▶</span>';
+    html += '</div>';
+
+    html += '<div class="release-body">';
+    if (dispGames.length > 0) {
+      html += '<div class="section-label games">🎮 Games (' + dispGames.length + ')</div>';
+      html += '<div class="item-list">';
+      for (const g of dispGames) {
+        html += '<div class="item"><span class="type-dot game"></span>' + highlightMatch(g, searchTerm) + '</div>';
+      }
+      html += '</div>';
+    }
+    if (dispApps.length > 0) {
+      html += '<div class="section-label apps">💾 Applications (' + dispApps.length + ')</div>';
+      html += '<div class="item-list">';
+      for (const a of dispApps) {
+        html += '<div class="item"><span class="type-dot app"></span>' + highlightMatch(a, searchTerm) + '</div>';
+      }
+      html += '</div>';
+    }
+    if (dispGames.length === 0 && dispApps.length === 0) {
+      html += '<div style="color:var(--text2);font-size:0.85rem;padding:0.5rem 0">No matching items in this release</div>';
+    }
+    html += '</div></div>';
+  }
+
+  if (visibleCount === 0) {
+    html = '<div class="no-results"><div class="emoji">🔍</div><p>No results found for "<strong>' + escapeHtml(searchTerm) + '</strong>"</p><p style="margin-top:0.5rem;font-size:0.85rem">Try a different search term or filter</p></div>';
+  }
+
+  container.innerHTML = html;
+
+  // Update count
+  const countEl = document.getElementById('resultCount');
+  if (searchTerm) {
+    countEl.textContent = matchCount + ' match' + (matchCount !== 1 ? 'es' : '') + ' in ' + visibleCount + ' release' + (visibleCount !== 1 ? 's' : '');
+  } else {
+    countEl.textContent = visibleCount + ' release' + (visibleCount !== 1 ? 's' : '');
+  }
+}
+
+function toggleCard(num) {
+  if (openCards.has(num)) {
+    openCards.delete(num);
+  } else {
+    openCards.add(num);
+  }
+  const card = document.querySelector('[data-release="' + num + '"]');
+  if (card) card.classList.toggle('open');
+}
+
+// Search
+let debounceTimer;
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    searchTerm = e.target.value.trim();
+    render();
+  }, 150);
+});
+
+// Filters
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    render();
+  });
+});
+
+// Scroll to top
+const scrollBtn = document.getElementById('scrollTop');
+window.addEventListener('scroll', () => {
+  scrollBtn.classList.toggle('visible', window.scrollY > 400);
+});
+scrollBtn.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Keyboard shortcut: / to focus search
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && document.activeElement !== document.getElementById('searchInput')) {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+  if (e.key === 'Escape') {
+    document.getElementById('searchInput').blur();
+    document.getElementById('searchInput').value = '';
+    searchTerm = '';
+    render();
+  }
+});
+
+// Initial render
+render();
+</script>
+</body>
+</html>
