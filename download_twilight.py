@@ -6,12 +6,19 @@ Downloads all files from the Archive.org Twilight Warez CD Pack collection
 
 import os
 import sys
+import hashlib
 import requests
+import xml.etree.ElementTree as ET
 from urllib.parse import urljoin, unquote
 from pathlib import Path
 from tqdm import tqdm
 import argparse
 from bs4 import BeautifulSoup
+
+
+# Archive.org identifier for this collection
+ARCHIVE_ID = 'twilight-warez-cd-pack-1-tm-89'
+METADATA_XML = f'{ARCHIVE_ID}_files.xml'
 
 
 class TwilightDownloader:
@@ -25,7 +32,113 @@ class TwilightDownloader:
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'
         })
+        self._metadata = None  # lazy-loaded from XML
         
+    # ------------------------------------------------------------------
+    #  Metadata / integrity helpers
+    # ------------------------------------------------------------------
+
+    def _load_metadata(self):
+        """Load expected sizes and MD5s from the archive.org _files.xml.
+
+        Downloads the XML first if it isn't already on disk.
+        Returns dict: filename -> {'size': int, 'md5': str}
+        """
+        if self._metadata is not None:
+            return self._metadata
+
+        xml_path = self.output_dir / METADATA_XML
+        if not xml_path.exists():
+            print(f"Downloading metadata: {METADATA_XML} …")
+            url = f"{self.base_url}/{METADATA_XML}"
+            r = self.session.get(url, timeout=60)
+            r.raise_for_status()
+            xml_path.write_bytes(r.content)
+
+        tree = ET.parse(xml_path)
+        meta = {}
+        for f in tree.getroot().findall('file'):
+            name = f.get('name', '')
+            size_txt = f.findtext('size')
+            md5_txt = f.findtext('md5')
+            if size_txt:
+                meta[name] = {
+                    'size': int(size_txt),
+                    'md5': md5_txt or '',
+                }
+        self._metadata = meta
+        return meta
+
+    @staticmethod
+    def _md5_file(path, chunk_size=1 << 20):
+        """Compute MD5 hex digest for a file on disk."""
+        h = hashlib.md5()
+        with open(path, 'rb') as f:
+            while True:
+                buf = f.read(chunk_size)
+                if not buf:
+                    break
+                h.update(buf)
+        return h.hexdigest()
+
+    def verify_file(self, filename, check_md5=False):
+        """Check a single downloaded file against metadata.
+
+        Returns (status, detail) where status is one of:
+          'ok'       – size (and optionally md5) match
+          'size'     – size mismatch
+          'md5'      – size ok but md5 mismatch
+          'missing'  – file does not exist on disk
+          'unknown'  – no metadata available for this file
+        """
+        meta = self._load_metadata()
+        if filename not in meta:
+            return ('unknown', 'no metadata entry')
+
+        expected = meta[filename]
+        filepath = self.output_dir / filename
+
+        if not filepath.exists():
+            return ('missing', f'expected {expected["size"]:,} bytes')
+
+        actual_size = filepath.stat().st_size
+        if actual_size != expected['size']:
+            pct = actual_size / expected['size'] * 100 if expected['size'] else 0
+            return ('size', f'expected {expected["size"]:,}  got {actual_size:,} ({pct:.1f}%)')
+
+        if check_md5 and expected['md5']:
+            actual_md5 = self._md5_file(filepath)
+            if actual_md5 != expected['md5']:
+                return ('md5', f'expected {expected["md5"]}  got {actual_md5}')
+
+        return ('ok', '')
+
+    def verify_all(self, file_types=None, check_md5=False):
+        """Verify every file (or only certain extensions) against metadata.
+
+        Returns lists: (ok, bad)  where bad items are (filename, status, detail).
+        """
+        meta = self._load_metadata()
+        ok, bad = [], []
+
+        for filename, info in sorted(meta.items()):
+            if file_types:
+                ext = os.path.splitext(filename)[1].lower().lstrip('.')
+                if ext not in file_types:
+                    continue
+            status, detail = self.verify_file(filename, check_md5=check_md5)
+            if status == 'ok':
+                ok.append(filename)
+            elif status == 'unknown':
+                continue
+            else:
+                bad.append((filename, status, detail))
+        return ok, bad
+
+    # ------------------------------------------------------------------
+    #  File listing
+    # ------------------------------------------------------------------
+
     def get_file_list(self):
         """Scrape the Archive.org page to get list of all files"""
         print(f"Fetching file list from {self.base_url}...")
@@ -178,6 +291,67 @@ class TwilightDownloader:
         print(f"Total: {len(files)}")
         print(f"{'='*60}")
 
+        # ---- post-download integrity check ----
+        print("\nVerifying downloaded files …")
+        ok_files, bad_files = self.verify_all(
+            file_types=self.file_types or None
+        )
+        if bad_files:
+            print(f"\n⚠  {len(bad_files)} file(s) failed verification:")
+            for name, status, detail in bad_files:
+                print(f"  [{status}] {name}: {detail}")
+            print("\nRun with --verify to see full report,")
+            print("or --fix to re-download corrupt/incomplete files.")
+        else:
+            print(f"✓ All {len(ok_files)} downloaded files verified OK")
+
+    def fix(self, file_types=None, check_md5=False):
+        """Verify all files and re-download any that are corrupt or missing."""
+        print("Verifying existing files …")
+        ok_files, bad_files = self.verify_all(
+            file_types=file_types, check_md5=check_md5
+        )
+        print(f"  {len(ok_files)} OK, {len(bad_files)} need re-download")
+
+        if not bad_files:
+            print("\n✓ Everything looks good – nothing to fix!")
+            return
+
+        print(f"\nRe-downloading {len(bad_files)} file(s):\n")
+        successful = 0
+        failed = 0
+
+        for i, (filename, status, detail) in enumerate(bad_files, 1):
+            print(f"\n[{i}/{len(bad_files)}] ({status}) {filename}: {detail}")
+            url = f"{self.base_url}/{filename}"
+            filepath = self.output_dir / filename
+
+            # Delete the partial/corrupt file so we get a clean download
+            if filepath.exists():
+                filepath.unlink()
+
+            try:
+                if self.download_file(filename, url, resume=False):
+                    # Double-check after download
+                    st, dt = self.verify_file(filename, check_md5=check_md5)
+                    if st == 'ok':
+                        successful += 1
+                    else:
+                        print(f"  ⚠ Still bad after re-download: {dt}")
+                        failed += 1
+                else:
+                    failed += 1
+            except KeyboardInterrupt:
+                print(f"\n\n⚠ Fix interrupted. {successful} fixed, {failed} failed, "
+                      f"{len(bad_files) - i} remaining")
+                sys.exit(1)
+
+        print(f"\n{'='*60}")
+        print(f"Fix complete!")
+        print(f"  Re-downloaded OK : {successful}")
+        print(f"  Still failing    : {failed}")
+        print(f"{'='*60}")
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -225,7 +399,25 @@ Examples:
         action='store_true',
         help='Skip thumbnail images (_thumb.jpg files)'
     )
-    
+
+    parser.add_argument(
+        '--verify',
+        action='store_true',
+        help='Verify existing downloads against archive.org metadata (size check)'
+    )
+
+    parser.add_argument(
+        '--verify-md5',
+        action='store_true',
+        help='Like --verify but also checks MD5 checksums (slower)'
+    )
+
+    parser.add_argument(
+        '--fix',
+        action='store_true',
+        help='Verify and automatically re-download any corrupt/incomplete files'
+    )
+
     args = parser.parse_args()
     
     # Normalize file types to lowercase
@@ -241,6 +433,10 @@ Examples:
         print(f"File types: {', '.join(args.types)}")
     if args.skip_thumbs:
         print("Skipping thumbnail images")
+    if args.verify or args.verify_md5:
+        print("Mode: VERIFY")
+    elif args.fix:
+        print("Mode: FIX (verify + re-download bad files)")
     print("="*60)
     
     try:
@@ -250,7 +446,33 @@ Examples:
             file_types=args.types,
             skip_thumbs=args.skip_thumbs
         )
+
+        # --- verify / fix modes ---
+        if args.verify or args.verify_md5:
+            check_md5 = args.verify_md5
+            ok, bad = downloader.verify_all(
+                file_types=args.types, check_md5=check_md5
+            )
+            print(f"\n✓ {len(ok)} file(s) OK")
+            if bad:
+                print(f"✗ {len(bad)} file(s) FAILED:")
+                for name, status, detail in bad:
+                    print(f"  [{status:>7s}] {name}: {detail}")
+                print(f"\nRun with --fix to re-download these automatically.")
+                sys.exit(1)
+            else:
+                print("All files verified successfully!")
+            sys.exit(0)
+
+        if args.fix:
+            downloader.fix(
+                file_types=args.types, check_md5=args.verify_md5
+            )
+            sys.exit(0)
+
+        # --- normal download ---
         downloader.download_all()
+
     except KeyboardInterrupt:
         print("\n\nDownload cancelled by user")
         sys.exit(1)

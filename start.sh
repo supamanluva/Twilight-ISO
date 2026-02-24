@@ -14,10 +14,12 @@ echo "Options:"
 echo "1. Download everything (full collection)"
 echo "2. Download only ISO files"
 echo "3. Download only cover images (no thumbnails)"
-echo "4. Custom options"
-echo "5. Exit"
+echo "4. Verify downloads (check for corrupt/incomplete files)"
+echo "5. Fix downloads (re-download corrupt/incomplete files)"
+echo "6. Custom options"
+echo "7. Exit"
 echo ""
-read -p "Select an option (1-5): " choice
+read -p "Select an option (1-7): " choice
 
 case $choice in
     1)
@@ -33,11 +35,19 @@ case $choice in
         python download_twilight.py --types jpg --skip-thumbs
         ;;
     4)
+        echo "Verifying downloaded files..."
+        python download_twilight.py --verify --types iso
+        ;;
+    5)
+        echo "Fixing corrupt/incomplete downloads..."
+        python download_twilight.py --fix --types iso
+        ;;
+    6)
         echo "Enter custom options (e.g., --types iso bin --output /path):"
         read -p "> " custom_opts
         python download_twilight.py $custom_opts
         ;;
-    5)
+    7)
         echo "Exiting..."
         exit 0
         ;;
