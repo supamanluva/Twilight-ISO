@@ -13,6 +13,7 @@ import re
 import glob
 from pathlib import Path
 from collections import OrderedDict
+from urllib.parse import quote
 
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
@@ -20,6 +21,8 @@ DATA_DIR = PROJECT_ROOT / "downloads"
 LIST_TXT_DIR = DATA_DIR / "list_txt_files"
 GAMES_LIST = DATA_DIR / "twilight_games_list.txt"
 OUTPUT_DIR = PROJECT_ROOT / "docs"
+
+ARCHIVE_BASE = "https://archive.org/download/twilight-warez-cd-pack-1-tm-89/"
 
 
 def normalize_disc_key(name: str) -> tuple:
@@ -150,6 +153,50 @@ def parse_games_list(filepath: str) -> dict:
     return result
 
 
+def find_cover_images() -> dict:
+    """Scan for cover JPG files and map release_num -> list of cover info."""
+    covers = {}
+    for jpg in sorted(DATA_DIR.glob("TWILIGHT *.jpg")):
+        name = jpg.name
+        if '_thumb' in name:
+            continue
+        m = re.match(r'TWILIGHT\s+(\d+)\s+(CDa|CDb|DVD)\s+Cover\.jpg', name)
+        if not m:
+            continue
+        num = int(m.group(1))
+        disc_type = m.group(2)  # CDa, CDb, or DVD
+        thumb_name = name.replace('.jpg', '_thumb.jpg')
+        if num not in covers:
+            covers[num] = []
+        covers[num].append({
+            'type': disc_type,
+            'url': ARCHIVE_BASE + quote(name),
+            'thumb': ARCHIVE_BASE + quote(thumb_name),
+        })
+    return covers
+
+
+def find_disc_files() -> dict:
+    """Scan for ISO/BIN files and map release_num -> list of file info."""
+    files = {}
+    for ext in ('*.iso', '*.bin'):
+        for f in sorted(DATA_DIR.glob(ext)):
+            name = f.name
+            m = re.match(r'Twilight0*(\d+)([aAbB]?)\.(?:iso|bin)', name)
+            if not m:
+                continue
+            num = int(m.group(1))
+            letter = m.group(2).lower()
+            if num not in files:
+                files[num] = []
+            files[num].append({
+                'filename': name,
+                'letter': letter,
+                'url': ARCHIVE_BASE + quote(name),
+            })
+    return files
+
+
 def build_index() -> dict:
     """Build the complete release index from all sources."""
     releases = {}
@@ -205,6 +252,34 @@ def build_index() -> dict:
             grouped[num]['games'] = data['games']
         if not grouped[num]['apps'] and data.get('apps'):
             grouped[num]['apps'] = data['apps']
+
+    # Attach cover images and disc files
+    covers = find_cover_images()
+    disc_files = find_disc_files()
+
+    for num, data in grouped.items():
+        data['covers'] = covers.get(num, [])
+        data['files'] = disc_files.get(num, [])
+
+    # 3. Add releases that have disc files or covers but no game/app data
+    all_release_nums = set(covers.keys()) | set(disc_files.keys())
+    for num in all_release_nums:
+        if num not in grouped:
+            # Build disc list from file names
+            discs = []
+            for f in disc_files.get(num, []):
+                discs.append({
+                    'name': f['filename'].replace('.iso', '').replace('.bin', ''),
+                    'letter': f['letter'],
+                })
+            grouped[num] = {
+                'release': num,
+                'discs': discs or [{'name': f'Twilight{num}', 'letter': ''}],
+                'games': [],
+                'apps': [],
+                'covers': covers.get(num, []),
+                'files': disc_files.get(num, []),
+            }
 
     # Sort by release number
     return OrderedDict(sorted(grouped.items()))
@@ -478,6 +553,73 @@ a:hover {{ text-decoration: underline; }}
 .type-dot.game {{ background: var(--game); }}
 .type-dot.app {{ background: var(--app); }}
 
+/* Cover images */
+.covers-row {{
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}}
+.cover-link {{
+  display: block;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 2px solid var(--border);
+  transition: border-color 0.2s, transform 0.2s;
+  position: relative;
+}}
+.cover-link:hover {{
+  border-color: var(--accent);
+  transform: scale(1.03);
+}}
+.cover-link img {{
+  display: block;
+  height: 140px;
+  width: auto;
+  object-fit: contain;
+  background: #000;
+}}
+.cover-label {{
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.7);
+  color: var(--text);
+  font-size: 0.65rem;
+  text-align: center;
+  padding: 2px 4px;
+  font-weight: 600;
+}}
+
+/* Disc files */
+.disc-files {{
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}}
+.disc-file-link {{
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.65rem;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  text-decoration: none;
+}}
+.disc-file-link:hover {{
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  text-decoration: none;
+}}
+
 /* Highlight search matches */
 mark {{
   background: var(--highlight);
@@ -668,6 +810,30 @@ function render() {{
     html += '</div>';
 
     html += '<div class="release-body">';
+
+    // Cover images
+    if (rel.covers && rel.covers.length > 0) {{
+      html += '<div class="covers-row">';
+      for (const c of rel.covers) {{
+        const label = c.type === 'DVD' ? 'DVD Cover' : (c.type === 'CDa' ? 'CD A Cover' : 'CD B Cover');
+        html += '<a class="cover-link" href="' + c.url + '" target="_blank" title="' + label + ' (click for full size)">';
+        html += '<img src="' + c.thumb + '" alt="' + label + '" loading="lazy">';
+        html += '<span class="cover-label">' + label + '</span>';
+        html += '</a>';
+      }}
+      html += '</div>';
+    }}
+
+    // Disc file download links
+    if (rel.files && rel.files.length > 0) {{
+      html += '<div class="disc-files">';
+      for (const f of rel.files) {{
+        const ext = f.filename.split('.').pop().toUpperCase();
+        html += '<a class="disc-file-link" href="' + f.url + '" title="Download ' + f.filename + '">💿 ' + f.filename + ' <span style="color:var(--text2);font-size:0.7rem">(' + ext + ')</span></a>';
+      }}
+      html += '</div>';
+    }}
+
     if (dispGames.length > 0) {{
       html += '<div class="section-label games">🎮 Games (' + dispGames.length + ')</div>';
       html += '<div class="item-list">';
