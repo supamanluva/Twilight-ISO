@@ -141,6 +141,12 @@ RELEASE_URLS = {
     87: [
         "http://twilight-cd.com/releases/2003-2/twilight-087-2dvd/",
     ],
+    88: [
+        "http://twilight-cd.com/releases/2003-2/twilight-088-2dvd/",
+    ],
+    89: [
+        "http://twilight-cd.com/releases/2004-2/twilight-089-2dvd/",
+    ],
 }
 
 
@@ -196,14 +202,24 @@ def parse_release_page(html: str) -> dict | None:
         if not is_games and not is_apps:
             continue
         
-        # Extract <li> items from the first <ul> after this header
+        # Extract items from the first <ul> or <p> after this header
         rest = section[header_match.end():]
-        ul_match = re.search(r'<ul[^>]*>(.*?)</ul>', rest, re.DOTALL)
-        if not ul_match:
-            continue
         
-        items = re.findall(r'<li[^>]*>(.*?)</li>', ul_match.group(1), re.DOTALL)
-        cleaned = [clean_text(item) for item in items if clean_text(item)]
+        # Try <ul><li> first
+        ul_match = re.search(r'<ul[^>]*>(.*?)</ul>', rest, re.DOTALL)
+        p_match = re.search(r'<p[^>]*>(.*?)</p>', rest, re.DOTALL)
+        
+        if ul_match:
+            items = re.findall(r'<li[^>]*>(.*?)</li>', ul_match.group(1), re.DOTALL)
+            cleaned = [clean_text(item) for item in items if clean_text(item)]
+        elif p_match:
+            # Some pages use <p>item<br />item<br />...</p> format
+            p_html = p_match.group(1)
+            # Split on <br> tags
+            parts = re.split(r'<br\s*/?>',  p_html)
+            cleaned = [clean_text(p) for p in parts if clean_text(p)]
+        else:
+            continue
         
         # Filter out noise like "---- Runtime ----"
         cleaned = [c for c in cleaned if not re.match(r'^[-─—=]+\s*\w+\s*[-─—=]+$', c) and len(c) > 1]

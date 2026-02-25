@@ -200,11 +200,15 @@ def find_disc_files() -> dict:
 
 
 def has_bad_game_names(games: list) -> bool:
-    """Check if game names are numbered folder names like '001', '002' etc."""
+    """Check if game names are numbered folder names like '001', '002', raw filenames
+    like 'foo.zip', or section headers like '[Games]' mistakenly parsed as entries."""
     if not games:
         return False
     numbered = sum(1 for g in games if re.match(r'^\d{2,3}$', g.strip()))
-    return numbered > len(games) * 0.5
+    zipped = sum(1 for g in games if re.match(r'^.*\.(zip|rar|001)$', g.strip(), re.IGNORECASE))
+    bracketed = sum(1 for g in games if re.match(r'^\[.+\]$', g.strip()))
+    bad = numbered + zipped + bracketed
+    return bad > len(games) * 0.5
 
 
 def load_scraped_data() -> dict:
@@ -278,13 +282,14 @@ def build_index() -> dict:
         num = int(num_str)
         if num in grouped:
             bad_games = has_bad_game_names(grouped[num]['games'])
-            # Replace games if current data is empty or has bad names (numbered folders)
+            bad_apps = has_bad_game_names(grouped[num]['apps'])
+            # Replace games if current data is empty or has bad names (numbered folders, zip files)
             if bad_games or not grouped[num]['games']:
                 if sdata.get('games'):
                     grouped[num]['games'] = sdata['games']
                     scraped_used += 1
-            # Replace apps if empty or if games were bad (same source, likely bad too)
-            if bad_games or not grouped[num]['apps']:
+            # Replace apps if empty or bad names
+            if bad_apps or bad_games or not grouped[num]['apps']:
                 if sdata.get('apps'):
                     grouped[num]['apps'] = sdata['apps']
         else:
