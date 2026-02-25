@@ -11,7 +11,9 @@ Download, verify, search, and browse the complete [Archive.org Twilight Warez CD
 - 📥 **Download** all files from archive.org with resume support
 - ✅ **Verify** downloads against metadata (size + MD5 checksums)
 - 🔧 **Auto-fix** corrupt or incomplete downloads
-- 🌐 **Searchable website** — browse games & apps by release, search instantly
+- 🌐 **Searchable website** — 89 releases, 1,626 games, 2,073 apps, with cover art and download links
+- 🖼️ **Cover art** — 132 cover images linked to every release
+- 💿 **Disc file links** — direct archive.org download links for all 125 ISO/BIN files
 - 🔍 **CLI search** — find which disc has a specific game
 - 💾 **USB prep** — format and load ISOs onto a USB drive for retro use
 
@@ -81,7 +83,15 @@ python download_twilight.py --fix --types iso
 
 ## Searchable Website
 
-A static single-page website that indexes every game and app across all 117 discs. Features instant search, filter by games/apps, and shows which ISO each title is on.
+A static single-page website that indexes every game and app across all releases. Browse 89 releases with cover art, disc download links, and instant search.
+
+| Stat | Count |
+|------|-------|
+| Releases | 89 |
+| Games | 1,626 |
+| Apps | 2,073 |
+| Cover images | 132 (across 78 releases) |
+| Disc files | 125 ISO/BIN download links |
 
 ### Build the Website
 
@@ -89,21 +99,29 @@ A static single-page website that indexes every game and app across all 117 disc
 python3 tools/build_website.py
 ```
 
-This reads the extracted disc data from `downloads/list_txt_files/` and generates `docs/index.html`.
+This reads the extracted disc data from `downloads/list_txt_files/` and `downloads/twilight_games_list.txt`, scans for cover images and ISO/BIN files, and generates `docs/index.html`.
 
 ### View the Website
 
-Open `docs/index.html` in any browser, or host it on GitHub Pages.
+Open `docs/index.html` in any browser, or serve locally:
 
-**Live site:** *(enable GitHub Pages on the `docs/` folder in repo settings)*
+```bash
+cd docs && python3 -m http.server 8765
+# Open http://localhost:8765
+```
+
+Or host on GitHub Pages (enable Pages on the `docs/` folder in repo settings).
 
 ### Website Features
 
 - 🔎 Instant search across all games and apps
 - 🎮 Filter by Games or Apps
-- 📀 Browse by release number
+- 📀 Browse all 89 releases (1–89)
+- 🖼️ Cover art thumbnails — click for full-size images on archive.org
+- 💿 Direct download links for every ISO/BIN file
 - ⌨️ Keyboard shortcuts: `/` to search, `Esc` to clear
 - 📱 Mobile responsive, dark theme
+- Releases without game/app data still show covers and download links
 
 ---
 
@@ -165,10 +183,23 @@ Twilight-ISO/
 
 | Releases | Size each | Notes |
 |----------|-----------|-------|
-| 001–047 | 640–700 MB | CD-sized |
-| 048–079 | 4–4.6 GB | DVD-sized |
-| 080–089 | 7.8–8.4 GB | Dual-layer |
-| **Total** | **~500+ GB** | |
+| 001–014 | 640–700 MB | CD-sized, single disc |
+| 015–047 | 640–700 MB × 2 | CD-sized, dual disc (a/b) |
+| 048–060 | 1.2–4.6 GB | Transitional (mixed CD/DVD) |
+| 061–079 | 4–4.6 GB | DVD-sized |
+| 080–086 | 7.8–8.4 GB | Dual-layer DVD |
+| 087–089 | 7.8–8.4 GB × 2 | Dual-layer, dual disc (A/B) |
+| **Total** | **~500+ GB** | **117 disc images, 265 JPGs** |
+
+## Data Sources
+
+The website content is built from multiple data sources:
+
+1. **LIST.TXT files** — extracted from disc menus inside the ISOs (best data, has both games & apps)
+2. **twilight_games_list.txt** — scraped game listings (games only, used as fallback)
+3. **Folder name extraction** — for discs without LIST.TXT, folder names from Apps/ and Games/ directories are used (via mount or 7z for UDF-format discs)
+4. **Cover images** — `TWILIGHT {NNN} CDa/CDb/DVD Cover.jpg` files from archive.org (132 full-size + 132 thumbnails)
+5. **Disc files** — ISO/BIN files mapped to releases by filename pattern
 
 ## License
 
