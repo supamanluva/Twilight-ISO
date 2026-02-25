@@ -3,15 +3,18 @@
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub](https://img.shields.io/badge/github-supamanluva%2FTwilight--ISO-black)](https://github.com/supamanluva/Twilight-ISO)
+[![Website](https://img.shields.io/badge/Browse-Online-green)](https://supamanluva.github.io/Twilight-ISO/)
 
 Download, verify, search, and browse the complete [Archive.org Twilight Warez CD Pack](https://archive.org/details/twilight-warez-cd-pack-1-tm-89) collection (releases 1–89, 117 disc images).
+
+**🌐 [Browse the collection online](https://supamanluva.github.io/Twilight-ISO/)**
 
 ## Features
 
 - 📥 **Download** all files from archive.org with resume support
 - ✅ **Verify** downloads against metadata (size + MD5 checksums)
 - 🔧 **Auto-fix** corrupt or incomplete downloads
-- 🌐 **Searchable website** — 89 releases, 1,626 games, 2,073 apps, with cover art and download links
+- 🌐 **Searchable website** — 89 releases, 2,749 games, 2,452 apps, with cover art and download links
 - 🖼️ **Cover art** — 132 cover images linked to every release
 - 💿 **Disc file links** — direct archive.org download links for all 125 ISO/BIN files
 - 🔍 **CLI search** — find which disc has a specific game
