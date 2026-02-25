@@ -5,6 +5,7 @@ Parse all Twilight disc data sources and generate a static searchable website.
 Data sources (in priority order):
 1. list_txt_files/*/MENU/LIST.TXT  - local disc menus (games + apps, best data)
 2. twilight_games_list.txt          - scraped games list (games only)
+3. scraped_data.json                - scraped from twilight-cd.com (fills gaps & fixes bad data)
 """
 
 import json
@@ -22,6 +23,7 @@ LIST_TXT_DIR = DATA_DIR / "list_txt_files"
 GAMES_LIST = DATA_DIR / "twilight_games_list.txt"
 OUTPUT_DIR = PROJECT_ROOT / "docs"
 
+SCRAPED_DATA = SCRIPT_DIR / "scraped_data.json"
 ARCHIVE_BASE = "https://archive.org/download/twilight-warez-cd-pack-1-tm-89/"
 
 
@@ -197,6 +199,22 @@ def find_disc_files() -> dict:
     return files
 
 
+def has_bad_game_names(games: list) -> bool:
+    """Check if game names are numbered folder names like '001', '002' etc."""
+    if not games:
+        return False
+    numbered = sum(1 for g in games if re.match(r'^\d{2,3}$', g.strip()))
+    return numbered > len(games) * 0.5
+
+
+def load_scraped_data() -> dict:
+    """Load scraped data from twilight-cd.com (tools/scraped_data.json)."""
+    if not SCRAPED_DATA.exists():
+        return {}
+    with open(SCRAPED_DATA, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+
 def build_index() -> dict:
     """Build the complete release index from all sources."""
     releases = {}
@@ -253,6 +271,35 @@ def build_index() -> dict:
         if not grouped[num]['apps'] and data.get('apps'):
             grouped[num]['apps'] = data['apps']
 
+    # 3. Fill in or fix data from twilight-cd.com scraped data
+    scraped = load_scraped_data()
+    scraped_used = 0
+    for num_str, sdata in scraped.items():
+        num = int(num_str)
+        if num in grouped:
+            bad_games = has_bad_game_names(grouped[num]['games'])
+            # Replace games if current data is empty or has bad names (numbered folders)
+            if bad_games or not grouped[num]['games']:
+                if sdata.get('games'):
+                    grouped[num]['games'] = sdata['games']
+                    scraped_used += 1
+            # Replace apps if empty or if games were bad (same source, likely bad too)
+            if bad_games or not grouped[num]['apps']:
+                if sdata.get('apps'):
+                    grouped[num]['apps'] = sdata['apps']
+        else:
+            # Release not yet in index - add it
+            grouped[num] = {
+                'release': num,
+                'discs': [{'name': f'Twilight{num}', 'letter': ''}],
+                'games': sdata.get('games', []),
+                'apps': sdata.get('apps', []),
+            }
+            scraped_used += 1
+
+    if scraped_used:
+        print(f"  Scraped data: filled/fixed {scraped_used} releases from twilight-cd.com")
+
     # Attach cover images and disc files
     covers = find_cover_images()
     disc_files = find_disc_files()
@@ -261,7 +308,7 @@ def build_index() -> dict:
         data['covers'] = covers.get(num, [])
         data['files'] = disc_files.get(num, [])
 
-    # 3. Add releases that have disc files or covers but no game/app data
+    # 4. Add releases that have disc files or covers but no game/app data
     all_release_nums = set(covers.keys()) | set(disc_files.keys())
     for num in all_release_nums:
         if num not in grouped:
